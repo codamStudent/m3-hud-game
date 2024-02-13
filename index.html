@@ -14,56 +14,77 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column; /* Align items vertically */
+  }
+
+  #startScreen {
+    display: flex; /* Use Flexbox for centering the button */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #game {
+    display: none; /* Hide the game canvas initially */
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 20px;
+    cursor: pointer;
   }
   </style>
 </head>
 <body>
+
+<div id="startScreen">
+  <button id="startButton">Start Game</button>
+</div>
+
 <canvas width="750" height="585" id="game"></canvas>
+
 <script>
 const canvas = document.getElementById('game');
 const context = canvas.getContext('2d');
 const grid = 15;
 const paddleHeight = grid * 5; // 80
 const maxPaddleY = canvas.height - grid - paddleHeight;
+var paddleSpeed = 8;
+    var ballSpeed = 5;
+    var pauseTimer = 1500;
+    var rounds = 100;
+    var LScore = 0;
+    var RScore = 0;
 
-var paddleSpeed = 6;
-var ballSpeed = 5;
+    context.font = "30px Comic Sans MS";
+    context.fillStyle = "red";
+    context.textAlign = "center";
 
 const leftPaddle = {
- 
   x: grid * 2,
   y: canvas.height / 2 - paddleHeight / 2,
   width: grid,
   height: paddleHeight,
-
-  // paddle velocity
   dy: 0
 };
+
 const rightPaddle = {
- 
   x: canvas.width - grid * 3,
   y: canvas.height / 2 - paddleHeight / 2,
   width: grid,
   height: paddleHeight,
-
-  // paddle velocity
   dy: 0
 };
+
 const ball = {
-  // start in the middle of the game
   x: canvas.width / 2,
   y: canvas.height / 2,
   width: grid,
   height: grid,
-
-  // keep track of when need to reset the ball position
   resetting: false,
-
-  // ball velocity (start going to the top-right corner)
   dx: ballSpeed,
   dy: -ballSpeed
 };
-
 
 function collides(obj1, obj2) {
   return obj1.x < obj2.x + obj2.width &&
@@ -72,16 +93,22 @@ function collides(obj1, obj2) {
          obj1.y + obj1.height > obj2.y;
 }
 
-// game loop
 function loop() {
   requestAnimationFrame(loop);
   context.clearRect(0,0,canvas.width,canvas.height);
+//score
+context.fillStyle = "red"
+        context.fillText(LScore,
+          canvas.width * 0.1,
+          canvas.height * 0.1
+        )
 
-
+        context.fillText(RScore,
+          canvas.width * 0.9,
+          canvas.height * 0.1)
   leftPaddle.y += leftPaddle.dy;
   rightPaddle.y += rightPaddle.dy;
 
- 
   if (leftPaddle.y < grid) {
     leftPaddle.y = grid;
   }
@@ -96,15 +123,12 @@ function loop() {
     rightPaddle.y = maxPaddleY;
   }
 
-  
   context.fillStyle = 'white';
   context.fillRect(leftPaddle.x, leftPaddle.y, leftPaddle.width, leftPaddle.height);
   context.fillRect(rightPaddle.x, rightPaddle.y, rightPaddle.width, rightPaddle.height);
 
- 
   ball.x += ball.dx;
   ball.y += ball.dy;
-
 
   if (ball.y < grid) {
     ball.y = grid;
@@ -115,11 +139,10 @@ function loop() {
     ball.dy *= -1;
   }
 
-  
-  if ( (ball.x < 0 || ball.x > canvas.width) && !ball.resetting) {
+  if ((ball.x < 0 || ball.x > canvas.width) && !ball.resetting) {
     ball.resetting = true;
-
-   
+    rounds--
+          if (ball.x < 0) { RScore++ } else { LScore++ }
     setTimeout(() => {
       ball.resetting = false;
       ball.x = canvas.width / 2;
@@ -127,20 +150,9 @@ function loop() {
     }, 400);
   }
 
- 
-  if (collides(ball, leftPaddle)) {
+  if (collides(ball, leftPaddle) || collides(ball, rightPaddle)) {
     ball.dx *= -1;
-
-  
-    ball.x = leftPaddle.x + leftPaddle.width;
   }
-  else if (collides(ball, rightPaddle)) {
-    ball.dx *= -1;
-
-
-    ball.x = rightPaddle.x - ball.width;
-  }
-
 
   context.fillRect(ball.x, ball.y, ball.width, ball.height);
 
@@ -148,47 +160,43 @@ function loop() {
   context.fillRect(0, 0, canvas.width, grid);
   context.fillRect(0, canvas.height - grid, canvas.width, canvas.height);
 
-
   for (let i = grid; i < canvas.height - grid; i += grid * 2) {
     context.fillRect(canvas.width / 2 - grid / 2, i, grid, grid);
   }
 }
 
-
 document.addEventListener('keydown', function(e) {
-
-  
   if (e.which === 38) {
     rightPaddle.dy = -paddleSpeed;
   }
-
   else if (e.which === 40) {
     rightPaddle.dy = paddleSpeed;
   }
-
-  // w key
   if (e.which === 87) {
     leftPaddle.dy = -paddleSpeed;
   }
-  // a key
   else if (e.which === 83) {
     leftPaddle.dy = paddleSpeed;
   }
 });
 
-// listen to keyboard events to stop the paddle if key is released
 document.addEventListener('keyup', function(e) {
   if (e.which === 38 || e.which === 40) {
     rightPaddle.dy = 0;
   }
-
   if (e.which === 83 || e.which === 87) {
     leftPaddle.dy = 0;
   }
 });
 
-// start the game
-requestAnimationFrame(loop);
+const startButton = document.getElementById('startButton');
+const startScreen = document.getElementById('startScreen');
+
+startButton.addEventListener('click', function() {
+  startScreen.style.display = 'none'; // Hide the start screen
+  canvas.style.display = 'block'; // Show the game canvas
+  requestAnimationFrame(loop); // Start the game loop
+});
 </script>
 </body>
 </html>
