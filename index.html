@@ -62,16 +62,16 @@
     <h1 id="leftW">RED WINS</h1>
     <h1 id="rightW">BLUE WINS</h1>
     <button id="startButton">Start Game</button>
-    <h1><a href="https://blastgalaxy.nl/">blast galaxy</a></h1>
+    <h1><a href="https://blastgalaxy.nl/" target="_blank">blast galaxy</a></h1>
   </div>
 
-  <canvas width="750" height="585" id="game"></canvas>
+  <canvas width="1200" height="680" id="game"></canvas>
 
   <script>
     const canvas = document.getElementById('game');
     const context = canvas.getContext('2d');
     const grid = 15;
-    const paddleHeight = grid * 20; // 80
+    const paddleHeight = grid * 14; // 80
     const maxPaddleY = canvas.height - grid - paddleHeight;
     var paddleSpeed = 8;
     var ballSpeed = 5;
